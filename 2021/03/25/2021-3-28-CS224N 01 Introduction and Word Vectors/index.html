@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"crispig.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="01 Introduction and Word VectorsLanguage isn’t a formal system,language is glorious chaos  Represent the meaning of a word1. 语言符号和意义的相互转换signifier（ symbol ）&lt;——&gt; signified（idea or thing）&#x3D; denotat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NLP_notes">
+<meta property="og:url" content="https://crispig.github.io/2021/03/25/2021-3-28-CS224N%2001%20Introduction%20and%20Word%20Vectors/index.html">
+<meta property="og:site_name" content="Crispig">
+<meta property="og:description" content="01 Introduction and Word VectorsLanguage isn’t a formal system,language is glorious chaos  Represent the meaning of a word1. 语言符号和意义的相互转换signifier（ symbol ）&lt;——&gt; signified（idea or thing）&#x3D; denotat">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560069660365.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png">
+<meta property="article:published_time" content="2021-03-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-04-05T03:30:25.269Z">
+<meta property="article:author" content="Crispy meat GMX">
+<meta property="article:tag" content="notes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560069660365.png">
+
+<link rel="canonical" href="https://crispig.github.io/2021/03/25/2021-3-28-CS224N%2001%20Introduction%20and%20Word%20Vectors/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>NLP_notes | Crispig</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Crispig</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://crispig.github.io/2021/03/25/2021-3-28-CS224N%2001%20Introduction%20and%20Word%20Vectors/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/mask_avatar.png">
+      <meta itemprop="name" content="Crispy meat GMX">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Crispig">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NLP_notes
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-25 00:00:00" itemprop="dateCreated datePublished" datetime="2021-03-25T00:00:00+08:00">2021-03-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-05 11:30:25" itemprop="dateModified" datetime="2021-04-05T11:30:25+08:00">2021-04-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="01-Introduction-and-Word-Vectors"><a href="#01-Introduction-and-Word-Vectors" class="headerlink" title="01 Introduction and Word Vectors"></a>01 Introduction and Word Vectors</h1><p><strong>Language isn’t a formal system,language is glorious chaos</strong></p>
+<hr>
+<h3 id="Represent-the-meaning-of-a-word"><a href="#Represent-the-meaning-of-a-word" class="headerlink" title="Represent the meaning of a word"></a>Represent the meaning of a word</h3><h4 id="1-语言符号和意义的相互转换"><a href="#1-语言符号和意义的相互转换" class="headerlink" title="1. 语言符号和意义的相互转换"></a>1. 语言符号和意义的相互转换</h4><p>signifier（ symbol ）&lt;——&gt; signified（idea or thing）= denotational semantics （指称语义）</p>
+<h4 id="2-One-hot-（离散符号表示）"><a href="#2-One-hot-（离散符号表示）" class="headerlink" title="2. One-hot （离散符号表示）"></a>2. One-hot （离散符号表示）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vocabulary&#x3D;[0 0 0 0 0 0 0 hotel 0 0 motel 0 0 0 0] 	&#x2F;&#x2F;收录所有词汇，维护一个很大的向量</span><br><span class="line"></span><br><span class="line">motel&#x3D;[0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]			&#x2F;&#x2F;独热表示</span><br><span class="line">hotel&#x3D;[0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>feature：</strong></p>
+<p> 向量正交（没有相似性概念，比较<strong>稀疏</strong>）</p>
+</li>
+<li><p><strong>solution：</strong></p>
+<ol>
+<li>使用WordNet库获取相似度 （不够完整，无法及时更新）</li>
+<li>学习在向量本身中编码的相似性</li>
+</ol>
+</li>
+</ul>
+<h4 id="3-Distributional-semantics-（分布式语义）"><a href="#3-Distributional-semantics-（分布式语义）" class="headerlink" title="3. Distributional semantics （分布式语义）"></a>3. Distributional semantics （分布式语义）</h4><blockquote>
+<p>You shall know a word by the company it keeps (J.R.Firth 1957:11)</p>
+<p>现代统计NLP最成功的理念</p>
+</blockquote>
+<ul>
+<li>在文本中，单词$w$附近的一组单词（一定size的窗口）称为上下文（context words ）</li>
+<li>用$w$的context words来构建$w$的表示</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560069660365.png" alt="示例"></p>
+<p>即一个单词的语义由他所处的语境（上下文）来表示，基于统计</p>
+<h3 id="Word2vec"><a href="#Word2vec" class="headerlink" title="Word2vec"></a>Word2vec</h3><ul>
+<li>构建单词的<strong>密集</strong>向量（word vectors OR word embedding）（基于Distributional semantics），解决One-hot表示稀疏的问题。</li>
+<li>使其与出现在<strong>相似上下文</strong>中的单词向量<strong>相似</strong>，因为处于相似语境下的单词具有相似语义</li>
+</ul>
+<p><strong>Word2vec</strong>(Mikolov et al. 2013)是一个学习单词向量的 <strong>框架</strong></p>
+<ul>
+<li>固定词汇表中的每个单词都由一个词向量表示</li>
+<li>文本中的每个位置 t，其中有一个中心词 c 和固定窗口的上下文单词 o</li>
+<li>使用 c 和 o 的 <strong>词向量的相似性</strong> 来计算给定 c 的 o 的 <strong>概率</strong> (反之亦然)</li>
+<li><strong>不断调整词向量</strong> 来最大化这个概率</li>
+</ul>
+<p>下图为窗口大小 j=2 时的 $P(w_{t+j} | wt)$ 计算过程,center word分别为 intointo 和 banking</p>
+<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png" alt="1560070410531"></p>
+<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png" alt="1560070494437"></p>
+<h3 id="Word2vec-objective-function"><a href="#Word2vec-objective-function" class="headerlink" title="Word2vec objective function"></a>Word2vec objective function</h3><p>对于每个位置t=1 , … , T，在size为m的窗口预测上下文</p>
+<h4 id="相似度度量"><a href="#相似度度量" class="headerlink" title="相似度度量"></a>相似度度量</h4><p>$$Likelihoood = L(\theta) = \prod^{T}<em>{t=1} \prod</em>{-m \leq j \leq m \atop j \neq 0} P(w_{t+j} | w_{t} ; \theta)$$</p>
+<blockquote>
+<p>$\theta$是需要优化的变量 </p>
+</blockquote>
+<h4 id="损失函数（loss-function）"><a href="#损失函数（loss-function）" class="headerlink" title="损失函数（loss function）"></a>损失函数（loss function）</h4><p>$$J(θ)=-\frac{1}{T}logL(θ)=−\frac{1}{T}∑^T_{t=1}∑_{−m≤j≤mj≠0}logP(w_{t+j} | wt;θ)$$</p>
+<blockquote>
+<ul>
+<li>使用log对$L(\theta)$取对数，方便将连乘转换为求和       $log\prod_{i}x_i=\sum_{i}logx_i$</li>
+<li>负号，将极大化似然转换为极小化损失函数，（最小化损失函数$\Leftrightarrow$最大化预测精度），梯度下降求解。</li>
+</ul>
+</blockquote>
+<h4 id="关于-P-w-t-j-w-t"><a href="#关于-P-w-t-j-w-t" class="headerlink" title="关于$P(w_{t+j} | w_{t})$"></a>关于$P(w_{t+j} | w_{t})$</h4><blockquote>
+<p>$v_w$当 $w$ 是中心词时</p>
+<p>$u_w$当$w$是上下文时</p>
+</blockquote>
+<p>对于中心词$c$和上下文词$o$</p>
+<p>$$p(o|c)=\frac{exp(u_o^T)}{\sum_{w\in Vexp(u_w^Tv_c)}}$$</p>
+<blockquote>
+<ul>
+<li>具体含义：<strong>具有相似上下文的单词，具有相似向量</strong></li>
+<li>分母，对词汇表标准化，给出概率分布</li>
+<li>$u_o和v_c$点乘，表示相似度大小，点积越大概率越大</li>
+<li>取幂保持结果为正</li>
+</ul>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/notes/" rel="tag"># notes</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/25/2021-3-25-%E5%A4%AA%E5%8E%9F/" rel="next" title="scenery">
+      scenery <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#01-Introduction-and-Word-Vectors"><span class="nav-number">1.</span> <span class="nav-text">01 Introduction and Word Vectors</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Represent-the-meaning-of-a-word"><span class="nav-number">1.0.1.</span> <span class="nav-text">Represent the meaning of a word</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%AF%AD%E8%A8%80%E7%AC%A6%E5%8F%B7%E5%92%8C%E6%84%8F%E4%B9%89%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">1. 语言符号和意义的相互转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-One-hot-%EF%BC%88%E7%A6%BB%E6%95%A3%E7%AC%A6%E5%8F%B7%E8%A1%A8%E7%A4%BA%EF%BC%89"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">2. One-hot （离散符号表示）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Distributional-semantics-%EF%BC%88%E5%88%86%E5%B8%83%E5%BC%8F%E8%AF%AD%E4%B9%89%EF%BC%89"><span class="nav-number">1.0.1.3.</span> <span class="nav-text">3. Distributional semantics （分布式语义）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word2vec"><span class="nav-number">1.0.2.</span> <span class="nav-text">Word2vec</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word2vec-objective-function"><span class="nav-number">1.0.3.</span> <span class="nav-text">Word2vec objective function</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B8%E4%BC%BC%E5%BA%A6%E5%BA%A6%E9%87%8F"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">相似度度量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%EF%BC%88loss-function%EF%BC%89"><span class="nav-number">1.0.3.2.</span> <span class="nav-text">损失函数（loss function）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E-P-w-t-j-w-t"><span class="nav-number">1.0.3.3.</span> <span class="nav-text">关于$P(w_{t+j} | w_{t})$</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Crispy meat GMX"
+      src="/uploads/mask_avatar.png">
+  <p class="site-author-name" itemprop="name">Crispy meat GMX</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Crispig" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Crispig" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:crispy.g@qq.com" title="E-Mail → mailto:crispy.g@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Crispy meat GMX</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
