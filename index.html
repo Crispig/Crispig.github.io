@@ -207,16 +207,12 @@
       
           <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
 <h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
 <h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
 <h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
 <h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 
       
@@ -322,16 +318,10 @@
 <li>封装模型并准备数据以在数据的单独子集上训练每个流程 </li>
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data.distributed <span class="keyword">import</span> DistributedSampler</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 每个进程运行在local_rank参数指定的1个GPU设备上 </span></span><br><span class="line"></span><br><span class="line">parser = argparse.ArgumentParser()</span><br><span class="line">parser.add_argument(<span class="string">&quot;--local_rank&quot;</span>, <span class="built_in">type</span>=<span class="built_in">int</span>)</span><br><span class="line">args = parser.parse_args()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化分布式后端，同步节点/GPU  </span></span><br><span class="line"></span><br><span class="line">torch.distributed.init_process_group(backend=<span class="string">&#x27;nccl&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型封装在分配给当前进程的GPU  </span></span><br><span class="line"></span><br><span class="line">device = torch.device(<span class="string">&#x27;cuda&#x27;</span>, arg.local_rank)</span><br><span class="line">model = model.to(device)</span><br><span class="line">distrib_model = torch.nn.parallel.DistributedDataParallel(model,</span><br><span class="line">                                                          device_ids=[args.local_rank],</span><br><span class="line">                                                          output_device=args.local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据加载限制为当前进程专属的数据集子集  </span></span><br><span class="line"></span><br><span class="line">sampler = DistributedSampler(dataset)</span><br><span class="line"></span><br><span class="line">dataloader = DataLoader(dataset, sampler=sampler)</span><br><span class="line"><span class="keyword">for</span> inputs, labels <span class="keyword">in</span> dataloader:</span><br><span class="line">    predictions = distrib_model(inputs.to(device))	<span class="comment"># 前传  </span></span><br><span class="line">    </span><br><span class="line">    loss = loss_function(predictions, labels.to(device))	<span class="comment"># 计算损失  </span></span><br><span class="line">    </span><br><span class="line">    loss.backward()	<span class="comment"># 反传  </span></span><br><span class="line">    </span><br><span class="line">    optimizer.step()	<span class="comment"># Optimizer  </span></span><br></pre></td></tr></table></figure>
-
-
-
 <h3 id="多节点启动"><a href="#多节点启动" class="headerlink" title="多节点启动"></a>多节点启动</h3><h4 id="torch-distributed-launch"><a href="#torch-distributed-launch" class="headerlink" title="torch.distributed.launch"></a>torch.distributed.launch</h4><blockquote>
 <p>可在每个训练节点上产生多个分布式训练进程 GPU 0 to GPU(nproc_per_node-1)</p>
 </blockquote>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">python -m torch.distributed.launch  </span><br><span class="line">		--nproc_per_node=NUM_GPUS_YOU_HAVE	<span class="comment"># 启动的进程数  </span></span><br><span class="line">     	</span><br><span class="line">        --nnodes=<span class="number">2</span>	<span class="comment"># 节点数  </span></span><br><span class="line">        </span><br><span class="line">        --node_rank=<span class="number">0</span>	<span class="comment"># 当前节点编号  </span></span><br><span class="line">        </span><br><span class="line">        --master_addr=<span class="string">&quot;192.168.1.1&quot;</span>	<span class="comment"># 主节点IP  </span></span><br><span class="line">        </span><br><span class="line">        --master_port=<span class="number">1234</span>	<span class="comment"># 端口号  </span></span><br></pre></td></tr></table></figure>
-
-
-
 
       
     </div>
@@ -392,7 +382,7 @@
       
           <h1 id="2021-Scenery-in-Taiyuan"><a href="#2021-Scenery-in-Taiyuan" class="headerlink" title="2021 Scenery in Taiyuan"></a>2021 Scenery in Taiyuan</h1><h2 id="沙尘-3-15"><a href="#沙尘-3-15" class="headerlink" title="沙尘 (3.15)"></a>沙尘 (3.15)</h2><p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/image-20210325152650241.png" alt="image-20210325152650241"></p>
 <p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/image-20210325155131410.png" alt="image-20210325155131410"></p>
-<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1.jpg"></p>
+<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1.jpg" alt=""></p>
 <p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/image-20210325163544997.png" alt="image-20210325163544997"></p>
 <p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/image-20210325155629884.png" alt="image-20210325155629884"></p>
 <h2 id="雪-3-19"><a href="#雪-3-19" class="headerlink" title="雪 (3.19)"></a>雪 (3.19)</h2><p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/image-20210325155823973.png" alt="image-20210325155823973"></p>
@@ -465,9 +455,8 @@
       
           <h1 id="01-Introduction-and-Word-Vectors"><a href="#01-Introduction-and-Word-Vectors" class="headerlink" title="01 Introduction and Word Vectors"></a>01 Introduction and Word Vectors</h1><p><strong>Language isn’t a formal system,language is glorious chaos</strong></p>
 <hr>
-<h3 id="Represent-the-meaning-of-a-word"><a href="#Represent-the-meaning-of-a-word" class="headerlink" title="Represent the meaning of a word"></a>Represent the meaning of a word</h3><h4 id="1-语言符号和意义的相互转换"><a href="#1-语言符号和意义的相互转换" class="headerlink" title="1. 语言符号和意义的相互转换"></a>1. 语言符号和意义的相互转换</h4><p>signifier（ symbol ）&lt;——&gt; signified（idea or thing）= denotational semantics （指称语义）</p>
+<h3 id="Represent-the-meaning-of-a-word"><a href="#Represent-the-meaning-of-a-word" class="headerlink" title="Represent the meaning of a word"></a>Represent the meaning of a word</h3><h4 id="1-语言符号和意义的相互转换"><a href="#1-语言符号和意义的相互转换" class="headerlink" title="1. 语言符号和意义的相互转换"></a>1. 语言符号和意义的相互转换</h4><p>signifier（ symbol ）&lt;———&gt; signified（idea or thing）= denotational semantics （指称语义）</p>
 <h4 id="2-One-hot-（离散符号表示）"><a href="#2-One-hot-（离散符号表示）" class="headerlink" title="2. One-hot （离散符号表示）"></a>2. One-hot （离散符号表示）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vocabulary&#x3D;[0 0 0 0 0 0 0 hotel 0 0 motel 0 0 0 0] 	&#x2F;&#x2F;收录所有词汇，维护一个很大的向量</span><br><span class="line"></span><br><span class="line">motel&#x3D;[0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]			&#x2F;&#x2F;独热表示</span><br><span class="line">hotel&#x3D;[0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li><p><strong>feature：</strong></p>
 <p> 向量正交（没有相似性概念，比较<strong>稀疏</strong>）</p>
@@ -504,12 +493,10 @@
 <p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png" alt="1560070410531"></p>
 <p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png" alt="1560070494437"></p>
 <h3 id="Word2vec-objective-function"><a href="#Word2vec-objective-function" class="headerlink" title="Word2vec objective function"></a>Word2vec objective function</h3><p>对于每个位置t=1 , … , T，在size为m的窗口预测上下文</p>
-<h4 id="相似度度量"><a href="#相似度度量" class="headerlink" title="相似度度量"></a>相似度度量</h4><p>$$Likelihoood = L(\theta) = \prod^{T}<em>{t=1} \prod</em>{-m \leq j \leq m \atop j \neq 0} P(w_{t+j} | w_{t} ; \theta)$$</p>
-<blockquote>
+<h4 id="相似度度量"><a href="#相似度度量" class="headerlink" title="相似度度量"></a>相似度度量</h4><script type="math/tex; mode=display">Likelihoood = L(\theta) = \prod^{T}_{t=1} \prod_{-m \leq j \leq m \atop j \neq 0} P(w_{t+j} | w_{t} ; \theta)</script><blockquote>
 <p>$\theta$是需要优化的变量 </p>
 </blockquote>
-<h4 id="损失函数（loss-function）"><a href="#损失函数（loss-function）" class="headerlink" title="损失函数（loss function）"></a>损失函数（loss function）</h4><p>$$J(θ)=-\frac{1}{T}logL(θ)=−\frac{1}{T}∑^T_{t=1}∑_{−m≤j≤mj≠0}logP(w_{t+j} | wt;θ)$$</p>
-<blockquote>
+<h4 id="损失函数（loss-function）"><a href="#损失函数（loss-function）" class="headerlink" title="损失函数（loss function）"></a>损失函数（loss function）</h4><script type="math/tex; mode=display">J(θ)=-\frac{1}{T}logL(θ)=−\frac{1}{T}∑^T_{t=1}∑_{−m≤j≤mj≠0}logP(w_{t+j} | wt;θ)</script><blockquote>
 <ul>
 <li>使用log对$L(\theta)$取对数，方便将连乘转换为求和       $log\prod_{i}x_i=\sum_{i}logx_i$</li>
 <li>负号，将极大化似然转换为极小化损失函数，（最小化损失函数$\Leftrightarrow$最大化预测精度），梯度下降求解。</li>
@@ -520,8 +507,7 @@
 <p>$u_w$当$w$是上下文时</p>
 </blockquote>
 <p>对于中心词$c$和上下文词$o$</p>
-<p>$$p(o|c)=\frac{exp(u_o^T)}{\sum_{w\in Vexp(u_w^Tv_c)}}$$</p>
-<blockquote>
+<script type="math/tex; mode=display">p(o|c)=\frac{exp(u_o^T)}{\sum_{w\in Vexp(u_w^Tv_c)}}</script><blockquote>
 <ul>
 <li>具体含义：<strong>具有相似上下文的单词，具有相似向量</strong></li>
 <li>分母，对词汇表标准化，给出概率分布</li>
@@ -709,6 +695,63 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

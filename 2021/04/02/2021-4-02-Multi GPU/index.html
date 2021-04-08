@@ -250,16 +250,10 @@
 <li>封装模型并准备数据以在数据的单独子集上训练每个流程 </li>
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data.distributed <span class="keyword">import</span> DistributedSampler</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 每个进程运行在local_rank参数指定的1个GPU设备上 </span></span><br><span class="line"></span><br><span class="line">parser = argparse.ArgumentParser()</span><br><span class="line">parser.add_argument(<span class="string">&quot;--local_rank&quot;</span>, <span class="built_in">type</span>=<span class="built_in">int</span>)</span><br><span class="line">args = parser.parse_args()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化分布式后端，同步节点/GPU  </span></span><br><span class="line"></span><br><span class="line">torch.distributed.init_process_group(backend=<span class="string">&#x27;nccl&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型封装在分配给当前进程的GPU  </span></span><br><span class="line"></span><br><span class="line">device = torch.device(<span class="string">&#x27;cuda&#x27;</span>, arg.local_rank)</span><br><span class="line">model = model.to(device)</span><br><span class="line">distrib_model = torch.nn.parallel.DistributedDataParallel(model,</span><br><span class="line">                                                          device_ids=[args.local_rank],</span><br><span class="line">                                                          output_device=args.local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据加载限制为当前进程专属的数据集子集  </span></span><br><span class="line"></span><br><span class="line">sampler = DistributedSampler(dataset)</span><br><span class="line"></span><br><span class="line">dataloader = DataLoader(dataset, sampler=sampler)</span><br><span class="line"><span class="keyword">for</span> inputs, labels <span class="keyword">in</span> dataloader:</span><br><span class="line">    predictions = distrib_model(inputs.to(device))	<span class="comment"># 前传  </span></span><br><span class="line">    </span><br><span class="line">    loss = loss_function(predictions, labels.to(device))	<span class="comment"># 计算损失  </span></span><br><span class="line">    </span><br><span class="line">    loss.backward()	<span class="comment"># 反传  </span></span><br><span class="line">    </span><br><span class="line">    optimizer.step()	<span class="comment"># Optimizer  </span></span><br></pre></td></tr></table></figure>
-
-
-
 <h3 id="多节点启动"><a href="#多节点启动" class="headerlink" title="多节点启动"></a>多节点启动</h3><h4 id="torch-distributed-launch"><a href="#torch-distributed-launch" class="headerlink" title="torch.distributed.launch"></a>torch.distributed.launch</h4><blockquote>
 <p>可在每个训练节点上产生多个分布式训练进程 GPU 0 to GPU(nproc_per_node-1)</p>
 </blockquote>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">python -m torch.distributed.launch  </span><br><span class="line">		--nproc_per_node=NUM_GPUS_YOU_HAVE	<span class="comment"># 启动的进程数  </span></span><br><span class="line">     	</span><br><span class="line">        --nnodes=<span class="number">2</span>	<span class="comment"># 节点数  </span></span><br><span class="line">        </span><br><span class="line">        --node_rank=<span class="number">0</span>	<span class="comment"># 当前节点编号  </span></span><br><span class="line">        </span><br><span class="line">        --master_addr=<span class="string">&quot;192.168.1.1&quot;</span>	<span class="comment"># 主节点IP  </span></span><br><span class="line">        </span><br><span class="line">        --master_port=<span class="number">1234</span>	<span class="comment"># 端口号  </span></span><br></pre></td></tr></table></figure>
-
-
-
 
     </div>
 
@@ -456,6 +450,63 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
