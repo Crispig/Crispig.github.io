@@ -25,7 +25,7 @@
 <meta property="og:url" content="https://crispig.github.io/index.html">
 <meta property="og:site_name" content="Crispig">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:author" content="Crispy meat GMX">
+<meta property="article:author" content="Crispy meat G">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://crispig.github.io/">
@@ -160,11 +160,75 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://crispig.github.io/2021/04/10/Python%20%E8%BF%9B%E7%A8%8B%E6%B1%A0%E5%AF%B9%E7%AE%80%E5%8D%95%E5%A4%9A%E5%8F%82%E6%95%B0%E5%BE%AA%E7%8E%AF%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8A%A0%E9%80%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/mask_avatar.png">
+      <meta itemprop="name" content="Crispy meat G">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Crispig">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/10/Python%20%E8%BF%9B%E7%A8%8B%E6%B1%A0%E5%AF%B9%E7%AE%80%E5%8D%95%E5%A4%9A%E5%8F%82%E6%95%B0%E5%BE%AA%E7%8E%AF%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8A%A0%E9%80%9F/" class="post-title-link" itemprop="url">多参数循环的并行加速</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-10 00:00:00 / 修改时间：21:41:28" itemprop="dateCreated datePublished" datetime="2021-04-10T00:00:00+08:00">2021-04-10</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Python-进程池对简单多参数循环的并行加速"><a href="#Python-进程池对简单多参数循环的并行加速" class="headerlink" title="Python 进程池对简单多参数循环的并行加速"></a>Python 进程池对简单多参数循环的并行加速</h1><p>在对一个集成学习的项目做参数调整的时候，发现循环内部操作比较耗时，并且集成的模型较多。整体的自动调参很耗时，考虑到循环内部不存在数据依赖，所以使用python进程池进行加速。服务器有56个计算核心，最终加速比大概50多倍。</p>
+<p>调参人狂喜。</p>
+<h2 id="multiprocessor库"><a href="#multiprocessor库" class="headerlink" title="multiprocessor库"></a>multiprocessor库</h2><p>主要是使用了python的<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#module-multiprocessing"><code>multiprocessing</code></a> 库，一个支持使用与 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/threading.html#module-threading"><code>threading</code></a> 模块类似的 API 来产生进程的包。 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#module-multiprocessing"><code>multiprocessing</code></a> 包同时提供了本地和远程并发操作，通过使用<strong>子进程</strong>而非线程有效地绕过了 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-global-interpreter-lock">全局解释器锁</a>。 因此，<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#module-multiprocessing"><code>multiprocessing</code></a> 模块允许程序员充分利用给定机器上的多个处理器。 它在 Unix 和 Windows 上均可运行。</p>
+<p>可以使用Process动态成生多个进程，手动的去限制进程数量，比较复杂</p>
+<p>但是我直接使用提供的<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#multiprocessing.pool.Pool"><code>Pool</code></a>进程池，可以提供指定数量的进程供用户使用，当有新请求提交到pool中时，如果进程池还没有满，就会创建一个新的j进程用来执行该请求。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Python库函数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line"></span><br><span class="line"><span class="comment"># 参数传递</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 传递迭代产生的参数，并调用功能函数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transfer</span>(<span class="params">args</span>):</span></span><br><span class="line">    <span class="keyword">return</span> func(*args)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体功能函数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>(<span class="params">a,b,c,d</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;&#123;&#125;--&#123;&#125;--&#123;&#125;--&#123;&#125;&quot;</span>.<span class="built_in">format</span>(a,b,c,d))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成参数范围</span></span><br><span class="line"></span><br><span class="line">A=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line">B=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line">C=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line">D=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成参数组</span></span><br><span class="line"></span><br><span class="line">args_list=[]</span><br><span class="line"><span class="keyword">for</span> a <span class="keyword">in</span> A:</span><br><span class="line">    <span class="keyword">for</span> b <span class="keyword">in</span> B:</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> C:</span><br><span class="line">            <span class="keyword">for</span> d <span class="keyword">in</span> D:</span><br><span class="line">                args_list.append([a,b,c,d])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定使用</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    pool=Pool(<span class="number">56</span>)	<span class="comment"># 开辟进程池</span></span><br><span class="line">    </span><br><span class="line">    pool.<span class="built_in">map</span>(transfer,args_list)	<span class="comment"># map传入参数</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://crispig.github.io/2021/04/06/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/mask_avatar.png">
-      <meta itemprop="name" content="Crispy meat GMX">
+      <meta itemprop="name" content="Crispy meat G">
       <meta itemprop="description" content="">
     </span>
 
@@ -237,7 +301,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/mask_avatar.png">
-      <meta itemprop="name" content="Crispy meat GMX">
+      <meta itemprop="name" content="Crispy meat G">
       <meta itemprop="description" content="">
     </span>
 
@@ -345,7 +409,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/mask_avatar.png">
-      <meta itemprop="name" content="Crispy meat GMX">
+      <meta itemprop="name" content="Crispy meat G">
       <meta itemprop="description" content="">
     </span>
 
@@ -417,7 +481,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/mask_avatar.png">
-      <meta itemprop="name" content="Crispy meat GMX">
+      <meta itemprop="name" content="Crispy meat G">
       <meta itemprop="description" content="">
     </span>
 
@@ -444,7 +508,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-05 11:30:25" itemprop="dateModified" datetime="2021-04-05T11:30:25+08:00">2021-04-05</time>
+                <time title="修改时间：2021-04-08 22:24:40" itemprop="dateModified" datetime="2021-04-08T22:24:40+08:00">2021-04-08</time>
               </span>
 
           
@@ -593,9 +657,9 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Crispy meat GMX"
+    <img class="site-author-image" itemprop="image" alt="Crispy meat G"
       src="/uploads/mask_avatar.png">
-  <p class="site-author-name" itemprop="name">Crispy meat GMX</p>
+  <p class="site-author-name" itemprop="name">Crispy meat G</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -603,7 +667,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -647,7 +711,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Crispy meat GMX</span>
+  <span class="author" itemprop="copyrightHolder">Crispy meat G</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
