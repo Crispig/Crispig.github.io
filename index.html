@@ -183,10 +183,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-04-10 00:00:00 / 修改时间：21:49:53" itemprop="dateCreated datePublished" datetime="2021-04-10T00:00:00+08:00">2021-04-10</time>
+              <time title="创建时间：2021-04-10 00:00:00" itemprop="dateCreated datePublished" datetime="2021-04-10T00:00:00+08:00">2021-04-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-17 21:47:33" itemprop="dateModified" datetime="2021-04-17T21:47:33+08:00">2021-04-17</time>
+              </span>
 
           
 
@@ -199,17 +205,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Python-进程池对简单多参数循环的并行加速"><a href="#Python-进程池对简单多参数循环的并行加速" class="headerlink" title="Python 进程池对简单多参数循环的并行加速"></a>Python 进程池对简单多参数循环的并行加速</h1><p>在对一个集成学习的项目做参数调整的时候，发现循环内部操作比较耗时，并且集成的模型较多。整体的自动调参很耗时，考虑到循环内部不存在数据依赖，所以使用python进程池进行加速。服务器有56个计算核心，最终加速比大概50多倍。</p>
-<p>调参人狂喜。</p>
-<h2 id="multiprocessor库"><a href="#multiprocessor库" class="headerlink" title="multiprocessor库"></a>multiprocessor库</h2><p>主要是使用了python的<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#module-multiprocessing"><code>multiprocessing</code></a> 库，一个支持使用与 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/threading.html#module-threading"><code>threading</code></a> 模块类似的 API 来产生进程的包。 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#module-multiprocessing"><code>multiprocessing</code></a> 包同时提供了本地和远程并发操作，通过使用<strong>子进程</strong>而非线程有效地绕过了 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-global-interpreter-lock">全局解释器锁</a>。 因此，<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#module-multiprocessing"><code>multiprocessing</code></a> 模块允许程序员充分利用给定机器上的多个处理器。 它在 Unix 和 Windows 上均可运行。</p>
-<p>可以使用Process动态成生多个进程，手动的去限制进程数量，比较复杂</p>
-<p>但是我直接使用提供的<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/multiprocessing.html#multiprocessing.pool.Pool"><code>Pool</code></a>进程池，可以提供指定数量的进程供用户使用，当有新请求提交到pool中时，如果进程池还没有满，就会创建一个新的j进程用来执行该请求。</p>
-<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Python库函数</span></span><br><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line"></span><br><span class="line"><span class="comment"># 参数传递</span></span><br><span class="line"><span class="comment"># 传递迭代产生的参数，并调用功能函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transfer</span>(<span class="params">args</span>):</span></span><br><span class="line">    <span class="keyword">return</span> func(*args)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体功能函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>(<span class="params">a,b,c,d</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;&#123;&#125;--&#123;&#125;--&#123;&#125;--&#123;&#125;&quot;</span>.<span class="built_in">format</span>(a,b,c,d))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成参数范围</span></span><br><span class="line">A=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line">B=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line">C=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line">D=<span class="built_in">range</span>(<span class="number">20</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成参数组</span></span><br><span class="line">args_list=[]</span><br><span class="line"><span class="keyword">for</span> a <span class="keyword">in</span> A:</span><br><span class="line">    <span class="keyword">for</span> b <span class="keyword">in</span> B:</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> C:</span><br><span class="line">            <span class="keyword">for</span> d <span class="keyword">in</span> D:</span><br><span class="line">                args_list.append([a,b,c,d])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定使用</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    pool=Pool(<span class="number">56</span>)					<span class="comment"># 开辟进程池</span></span><br><span class="line">    </span><br><span class="line">    pool.<span class="built_in">map</span>(transfer,args_list)	<span class="comment"># map传入参数</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="结果对比"><a href="#结果对比" class="headerlink" title="结果对比"></a>结果对比</h2><p>由于我的代码涉及到文件I/O，所以有些操作比较复杂，函数内部耗时比较长。</p>
-<p>由于我们服务器有56个逻辑核心，开辟56个进程，加速比大概50多倍</p>
-<h3 id="56核"><a href="#56核" class="headerlink" title="56核"></a>56核</h3><p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/image-20210410214657106.png" alt="image-20210410214657106"></p>
-<h3 id="单核"><a href="#单核" class="headerlink" title="单核"></a>单核</h3><p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/image-20210410214734739.png" alt="image-20210410214734739"></p>
-
+          <p>python进程池多参数循环加速</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/04/10/Python%20%E8%BF%9B%E7%A8%8B%E6%B1%A0%E5%AF%B9%E7%AE%80%E5%8D%95%E5%A4%9A%E5%8F%82%E6%95%B0%E5%BE%AA%E7%8E%AF%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8A%A0%E9%80%9F/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -332,7 +336,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-12 08:56:44" itemprop="dateModified" datetime="2021-04-12T08:56:44+08:00">2021-04-12</time>
+                <time title="修改时间：2021-04-17 21:45:23" itemprop="dateModified" datetime="2021-04-17T21:45:23+08:00">2021-04-17</time>
               </span>
 
           
@@ -346,51 +350,87 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="多GPU训练"><a href="#多GPU训练" class="headerlink" title="多GPU训练"></a>多GPU训练</h1><h2 id="Python’s-GIL限制"><a href="#Python’s-GIL限制" class="headerlink" title="Python’s GIL限制"></a>Python’s GIL限制</h2><blockquote>
-<p>Global Interpreter Lock</p>
-</blockquote>
-<p>是一个互斥锁，用于保护对Python对象的访问，从而防止多个线程同时执行Python字节码。，确保任何时候只有一个线程在运行，无法将多个处理器的线程一起使用（使用multiprocessing库）</p>
-<h3 id="multiprocessing-library"><a href="#multiprocessing-library" class="headerlink" title="multiprocessing library"></a>multiprocessing library</h3><p>使用进程池 <strong>multiprocessing.Pool(p)</strong></p>
-<blockquote>
-<p>P为默认的CPU核心数</p>
-</blockquote>
-<p><a href="https://crispig.github.io/2021/04/10/Python%20%E8%BF%9B%E7%A8%8B%E6%B1%A0%E5%AF%B9%E7%AE%80%E5%8D%95%E5%A4%9A%E5%8F%82%E6%95%B0%E5%BE%AA%E7%8E%AF%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8A%A0%E9%80%9F/">俺的另一篇博客，如何使用进程池。</a></p>
-<h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><blockquote>
-<p>Python线程共享内存，访问数据取决于调度算法</p>
-</blockquote>
-<p>GIL保证一次只运行一个线程</p>
-<h3 id="GIL瓶颈"><a href="#GIL瓶颈" class="headerlink" title="GIL瓶颈"></a>GIL瓶颈</h3><blockquote>
-<p>许多I/O，图像处理和NumPy数学运算在GIL之外</p>
-</blockquote>
-<ol>
-<li>阻碍多线程Cpython程序充分利用多处理器优势</li>
-<li>GIL内部花费大量时间来解释CPython字节码的多线程程序</li>
-</ol>
-<h2 id="并行的方式计算Loss"><a href="#并行的方式计算Loss" class="headerlink" title="并行的方式计算Loss"></a>并行的方式计算Loss</h2><blockquote>
-<p>DataParallel(DP)</p>
-</blockquote>
-<p>每个部分输出保留在其GPU上，而不是将所有部分输出收集到 master节点上。 我们还需要分配我们的损失准则计算，以便能够计算和反向传播我们的损失。</p>
-<h2 id="Multi-Machine-DDP"><a href="#Multi-Machine-DDP" class="headerlink" title="Multi Machine(DDP)"></a>Multi Machine(DDP)</h2><blockquote>
-<p> Distributed training (torch.nn.DistributedDataParallel)</p>
-<p>即使在单机设置中，DistributedDataParallel仍可以有效地替换DataParallel。</p>
-</blockquote>
-<p>在每个节点上独立启动python脚本，通过PyTorch分布式后端同步</p>
-<p><strong>each training script</strong></p>
-<ul>
-<li><strong>独立的optimizer</strong> ：no parameter broadcast ( DataParallel is needed)</li>
-<li><strong>独立的Python解释器</strong>：避免在单个Python解释器中驱动多个并行执行线程而产生<a target="_blank" rel="noopener" href="https://wiki.python.org/moin/GlobalInterpreterLock">GIL-freeze</a>。</li>
-</ul>
-<h3 id="调整每个机器-节点-的Python训练脚本"><a href="#调整每个机器-节点-的Python训练脚本" class="headerlink" title="调整每个机器(节点)的Python训练脚本"></a>调整每个机器(节点)的Python训练脚本</h3><p>保证每个节点能分别运行脚本，每块GPU分配单独进程</p>
-<ol>
-<li>初始化分布式后端以进行同步</li>
-<li>封装模型并准备数据以在数据的单独子集上训练每个流程 </li>
-</ol>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data.distributed <span class="keyword">import</span> DistributedSampler</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 每个进程运行在local_rank参数指定的1个GPU设备上 </span></span><br><span class="line"></span><br><span class="line">parser = argparse.ArgumentParser()</span><br><span class="line">parser.add_argument(<span class="string">&quot;--local_rank&quot;</span>, <span class="built_in">type</span>=<span class="built_in">int</span>)</span><br><span class="line">args = parser.parse_args()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化分布式后端，同步节点/GPU  </span></span><br><span class="line"></span><br><span class="line">torch.distributed.init_process_group(backend=<span class="string">&#x27;nccl&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型封装在分配给当前进程的GPU  </span></span><br><span class="line"></span><br><span class="line">device = torch.device(<span class="string">&#x27;cuda&#x27;</span>, arg.local_rank)</span><br><span class="line">model = model.to(device)</span><br><span class="line">distrib_model = torch.nn.parallel.DistributedDataParallel(model,</span><br><span class="line">                                                          device_ids=[args.local_rank],</span><br><span class="line">                                                          output_device=args.local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据加载限制为当前进程专属的数据集子集  </span></span><br><span class="line"></span><br><span class="line">sampler = DistributedSampler(dataset)</span><br><span class="line"></span><br><span class="line">dataloader = DataLoader(dataset, sampler=sampler)</span><br><span class="line"><span class="keyword">for</span> inputs, labels <span class="keyword">in</span> dataloader:</span><br><span class="line">    predictions = distrib_model(inputs.to(device))	<span class="comment"># 前传  </span></span><br><span class="line">    </span><br><span class="line">    loss = loss_function(predictions, labels.to(device))	<span class="comment"># 计算损失  </span></span><br><span class="line">    </span><br><span class="line">    loss.backward()	<span class="comment"># 反传  </span></span><br><span class="line">    </span><br><span class="line">    optimizer.step()	<span class="comment"># Optimizer  </span></span><br></pre></td></tr></table></figure>
-<h3 id="多节点启动"><a href="#多节点启动" class="headerlink" title="多节点启动"></a>多节点启动</h3><h4 id="torch-distributed-launch"><a href="#torch-distributed-launch" class="headerlink" title="torch.distributed.launch"></a>torch.distributed.launch</h4><blockquote>
-<p>可在每个训练节点上产生多个分布式训练进程 GPU 0 to GPU(nproc_per_node-1)</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">python -m torch.distributed.launch  </span><br><span class="line">		--nproc_per_node=NUM_GPUS_YOU_HAVE	<span class="comment"># 启动的进程数  </span></span><br><span class="line">     	</span><br><span class="line">        --nnodes=<span class="number">2</span>	<span class="comment"># 节点数  </span></span><br><span class="line">        </span><br><span class="line">        --node_rank=<span class="number">0</span>	<span class="comment"># 当前节点编号  </span></span><br><span class="line">        </span><br><span class="line">        --master_addr=<span class="string">&quot;192.168.1.1&quot;</span>	<span class="comment"># 主节点IP  </span></span><br><span class="line">        </span><br><span class="line">        --master_port=<span class="number">1234</span>	<span class="comment"># 端口号  </span></span><br></pre></td></tr></table></figure>
+          <p>多GPU并行</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/04/02/2021-4-02-Multi%20GPU/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
 
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://crispig.github.io/2021/04/02/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95_%E7%AC%AC%E4%B8%80%E7%AB%A0_%E6%A6%82%E8%AE%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/mask_avatar.png">
+      <meta itemprop="name" content="Crispy meat G">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Crispig">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/02/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95_%E7%AC%AC%E4%B8%80%E7%AB%A0_%E6%A6%82%E8%AE%BA/" class="post-title-link" itemprop="url">统计学习方法_1</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-02 00:00:00" itemprop="dateCreated datePublished" datetime="2021-04-02T00:00:00+08:00">2021-04-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-17 21:46:40" itemprop="dateModified" datetime="2021-04-17T21:46:40+08:00">2021-04-17</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>统计学习方法_1</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/04/02/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95_%E7%AC%AC%E4%B8%80%E7%AB%A0_%E6%A6%82%E8%AE%BA/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -440,7 +480,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-12 08:57:45" itemprop="dateModified" datetime="2021-04-12T08:57:45+08:00">2021-04-12</time>
+                <time title="修改时间：2021-04-17 21:47:40" itemprop="dateModified" datetime="2021-04-17T21:47:40+08:00">2021-04-17</time>
               </span>
 
           
@@ -454,7 +494,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>太原三月的一些绮丽景色</p>
+          <p>Taiyuan March</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/03/25/2021-3-25-%E5%A4%AA%E5%8E%9F/">
@@ -512,7 +552,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-12 08:57:18" itemprop="dateModified" datetime="2021-04-12T08:57:18+08:00">2021-04-12</time>
+                <time title="修改时间：2021-04-17 21:44:22" itemprop="dateModified" datetime="2021-04-17T21:44:22+08:00">2021-04-17</time>
               </span>
 
           
@@ -526,69 +566,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="01-Introduction-and-Word-Vectors"><a href="#01-Introduction-and-Word-Vectors" class="headerlink" title="01 Introduction and Word Vectors"></a>01 Introduction and Word Vectors</h1><p><strong>Language isn’t a formal system,language is glorious chaos</strong></p>
-<hr>
-<h3 id="Represent-the-meaning-of-a-word"><a href="#Represent-the-meaning-of-a-word" class="headerlink" title="Represent the meaning of a word"></a>Represent the meaning of a word</h3><h4 id="1-语言符号和意义的相互转换"><a href="#1-语言符号和意义的相互转换" class="headerlink" title="1. 语言符号和意义的相互转换"></a>1. 语言符号和意义的相互转换</h4><p>signifier（ symbol ）&lt;———&gt; signified（idea or thing）= denotational semantics （指称语义）</p>
-<h4 id="2-One-hot-（离散符号表示）"><a href="#2-One-hot-（离散符号表示）" class="headerlink" title="2. One-hot （离散符号表示）"></a>2. One-hot （离散符号表示）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vocabulary&#x3D;[0 0 0 0 0 0 0 hotel 0 0 motel 0 0 0 0] 	&#x2F;&#x2F;收录所有词汇，维护一个很大的向量</span><br><span class="line"></span><br><span class="line">motel&#x3D;[0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]			&#x2F;&#x2F;独热表示</span><br><span class="line">hotel&#x3D;[0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>feature：</strong></p>
-<p> 向量正交（没有相似性概念，比较<strong>稀疏</strong>）</p>
-</li>
-<li><p><strong>solution：</strong></p>
-<ol>
-<li>使用WordNet库获取相似度 （不够完整，无法及时更新）</li>
-<li>学习在向量本身中编码的相似性</li>
-</ol>
-</li>
-</ul>
-<h4 id="3-Distributional-semantics-（分布式语义）"><a href="#3-Distributional-semantics-（分布式语义）" class="headerlink" title="3. Distributional semantics （分布式语义）"></a>3. Distributional semantics （分布式语义）</h4><blockquote>
-<p>You shall know a word by the company it keeps (J.R.Firth 1957:11)</p>
-<p>现代统计NLP最成功的理念</p>
-</blockquote>
-<ul>
-<li>在文本中，单词$w$附近的一组单词（一定size的窗口）称为上下文（context words ）</li>
-<li>用$w$的context words来构建$w$的表示</li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560069660365.png" alt="示例"></p>
-<p>即一个单词的语义由他所处的语境（上下文）来表示，基于统计</p>
-<h3 id="Word2vec"><a href="#Word2vec" class="headerlink" title="Word2vec"></a>Word2vec</h3><ul>
-<li>构建单词的<strong>密集</strong>向量（word vectors OR word embedding）（基于Distributional semantics），解决One-hot表示稀疏的问题。</li>
-<li>使其与出现在<strong>相似上下文</strong>中的单词向量<strong>相似</strong>，因为处于相似语境下的单词具有相似语义</li>
-</ul>
-<p><strong>Word2vec</strong>(Mikolov et al. 2013)是一个学习单词向量的 <strong>框架</strong></p>
-<ul>
-<li>固定词汇表中的每个单词都由一个词向量表示</li>
-<li>文本中的每个位置 t，其中有一个中心词 c 和固定窗口的上下文单词 o</li>
-<li>使用 c 和 o 的 <strong>词向量的相似性</strong> 来计算给定 c 的 o 的 <strong>概率</strong> (反之亦然)</li>
-<li><strong>不断调整词向量</strong> 来最大化这个概率</li>
-</ul>
-<p>下图为窗口大小 j=2 时的 $P(w_{t+j} | wt)$ 计算过程,center word分别为 intointo 和 banking</p>
-<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png" alt="1560070410531"></p>
-<p><img src="https://raw.githubusercontent.com/Crispig/Picbed/main/blog/img/1560070494437.png" alt="1560070494437"></p>
-<h3 id="Word2vec-objective-function"><a href="#Word2vec-objective-function" class="headerlink" title="Word2vec objective function"></a>Word2vec objective function</h3><p>对于每个位置t=1 , … , T，在size为m的窗口预测上下文</p>
-<h4 id="相似度度量"><a href="#相似度度量" class="headerlink" title="相似度度量"></a>相似度度量</h4><script type="math/tex; mode=display">Likelihoood = L(\theta) = \prod^{T}_{t=1} \prod_{-m \leq j \leq m \atop j \neq 0} P(w_{t+j} | w_{t} ; \theta)</script><blockquote>
-<p>$\theta$是需要优化的变量 </p>
-</blockquote>
-<h4 id="损失函数（loss-function）"><a href="#损失函数（loss-function）" class="headerlink" title="损失函数（loss function）"></a>损失函数（loss function）</h4><script type="math/tex; mode=display">J(θ)=-\frac{1}{T}logL(θ)=−\frac{1}{T}∑^T_{t=1}∑_{−m≤j≤mj≠0}logP(w_{t+j} | wt;θ)</script><blockquote>
-<ul>
-<li>使用log对$L(\theta)$取对数，方便将连乘转换为求和       $log\prod_{i}x_i=\sum_{i}logx_i$</li>
-<li>负号，将极大化似然转换为极小化损失函数，（最小化损失函数$\Leftrightarrow$最大化预测精度），梯度下降求解。</li>
-</ul>
-</blockquote>
-<h4 id="关于-P-w-t-j-w-t"><a href="#关于-P-w-t-j-w-t" class="headerlink" title="关于$P(w_{t+j} | w_{t})$"></a>关于$P(w_{t+j} | w_{t})$</h4><blockquote>
-<p>$v_w$当 $w$ 是中心词时</p>
-<p>$u_w$当$w$是上下文时</p>
-</blockquote>
-<p>对于中心词$c$和上下文词$o$</p>
-<script type="math/tex; mode=display">p(o|c)=\frac{exp(u_o^T)}{\sum_{w\in Vexp(u_w^Tv_c)}}</script><blockquote>
-<ul>
-<li>具体含义：<strong>具有相似上下文的单词，具有相似向量</strong></li>
-<li>分母，对词汇表标准化，给出概率分布</li>
-<li>$u_o和v_c$点乘，表示相似度大小，点积越大概率越大</li>
-<li>取幂保持结果为正</li>
-</ul>
-</blockquote>
-
+          <p>CS224n_section1</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/03/25/2021-3-28-CS224N%2001%20Introduction%20and%20Word%20Vectors/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -671,7 +657,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
