@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="{{ page.lang | default: site.lang | default: 'zh-CN' }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ page.description | default: site.description | strip_html | normalize_whitespace | escape }}">
+    <title>{% if page.title and page.title != '首页' %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+    <link rel="canonical" href="{{ page.url | replace: 'index.html', '' | absolute_url }}">
+    <link rel="icon" href="{{ '/assets/images/favicon.svg' | relative_url }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  </head>
+  <body>
+    <main class="page-container">
+      {{ content }}
+    </main>
+  </body>
+</html>

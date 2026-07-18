@@ -1,0 +1,23 @@
+---
+layout: default
+title: Blogs
+description: "Changyue Liao 的全部文章与技术笔记。"
+permalink: /blog/
+---
+
+<section class="subpage">
+  <p class="subpage-nav"><a href="{{ '/' | relative_url }}">← Changyue Liao</a></p>
+  <h1 class="subpage-title">Blogs</h1>
+
+  <ul class="blog-archive">
+    {% for post in site.posts %}
+      <li>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <span class="archive-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+        {% if post.description %}<p>{{ post.description }}</p>{% endif %}
+      </li>
+    {% else %}
+      <li>More writing coming soon.</li>
+    {% endfor %}
+  </ul>
+</section>

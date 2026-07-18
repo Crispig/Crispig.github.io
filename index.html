@@ -1,0 +1,105 @@
+---
+layout: default
+title: 首页
+description: "Changyue Liao 的个人主页：研究、写作与项目。"
+---
+
+<!-- 只编辑本页的文字即可更换主页内容；博客文章仍放在 _posts 文件夹。 -->
+
+<section class="intro">
+  <div class="intro-copy">
+    <h1 class="name">Changyue Liao</h1>
+
+    <p class="intro-summary">
+      I received my M.S. from <strong>Zhejiang University</strong>.
+      I am interested in <strong>language models, machine learning, and efficient AI systems</strong>.
+    </p>
+
+    <p class="intro-links">
+      <a href="{{ '/blog/' | relative_url }}">Blog</a>
+      &nbsp;/&nbsp;
+      <a href="https://github.com/{{ site.github_username }}">Github</a>
+    </p>
+  </div>
+
+  <div class="photo-cell">
+    <img class="profile-photo" src="{{ site.avatar }}" alt="Changyue Liao profile photo" width="320" height="320">
+  </div>
+</section>
+
+<section class="content-section">
+  <h2 class="section-title">Research</h2>
+  <div class="section-body">
+    <p>
+      My interests broadly lie in machine learning and AI systems. I care about how language models
+      reason, learn from data, and run reliably and efficiently in real-world systems.
+    </p>
+
+    <div class="research-topic">
+      <p class="topic-title">Language Models and Reasoning</p>
+      <p>
+        How can models understand language, represent knowledge, and solve problems that require
+        multi-step reasoning?
+      </p>
+    </div>
+
+    <div class="research-topic">
+      <p class="topic-title">Efficient AI Systems</p>
+      <p>
+        How can we make model training and inference faster, more reliable, and easier to use?
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="content-section">
+  <h2 class="section-title">Blogs</h2>
+  <div class="section-body compact-body">
+    <ul class="blog-list">
+      {% for post in site.posts limit:5 %}
+        <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+      {% else %}
+        <li>More writing coming soon.</li>
+      {% endfor %}
+    </ul>
+    <p class="all-posts-link"><a href="{{ '/blog/' | relative_url }}">All posts</a></p>
+  </div>
+</section>
+
+<section class="content-section">
+  <h2 class="section-title">Representative Work</h2>
+  <div class="work-list">
+    <article class="work-item">
+      <p class="work-title">Tiny3D</p>
+      <p>Research and engineering explorations related to 3D learning.</p>
+      <p><a href="https://github.com/Crispig/Tiny3D">[code]</a></p>
+    </article>
+
+    <article class="work-item">
+      <p class="work-title">LE</p>
+      <p>A BERT-based project for the complete fill-in-the-blank task.</p>
+      <p><a href="https://github.com/Crispig/LE">[code]</a></p>
+    </article>
+
+    <article class="work-item">
+      <p class="work-title">ASC-RACE</p>
+      <p>Models and experiments for reading comprehension.</p>
+      <p><a href="https://github.com/Crispig/ASC-RACE">[code]</a></p>
+    </article>
+  </div>
+</section>
+
+<section class="content-section">
+  <h2 class="section-title">Miscellaneous</h2>
+  <div class="section-body compact-body">
+    <ul>
+      <li>I enjoy breaking complicated questions into small, testable ones.</li>
+      <li>I write about AI, systems engineering, and things I learn along the way.</li>
+      <li>This is a good place for hobbies, personal stories, or a line of humor.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="homepage-footer">
+  <p>Website format inspired by <a href="https://ruiqi-zhong.github.io/">Ruiqi Zhong</a>.</p>
+</footer>

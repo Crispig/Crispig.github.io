@@ -1,0 +1,23 @@
+title: "Changyue Liao"
+name: "Changyue Liao"
+tagline: "Machine learning, language models, and efficient AI systems."
+description: "Changyue Liao 的个人主页与技术博客。"
+url: "https://crispig.github.io"
+baseurl: ""
+lang: "zh-CN"
+timezone: "Asia/Shanghai"
+permalink: /blog/:year/:month/:day/:title/
+
+# 已保存当前 GitHub 头像，避免主页依赖外部图片请求。
+avatar: "/assets/images/profile.png"
+github_username: "Crispig"
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
