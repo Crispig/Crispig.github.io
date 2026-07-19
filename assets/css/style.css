@@ -125,6 +125,65 @@ a:hover {
   margin-top: 0;
 }
 
+.publication-list {
+  width: 100%;
+  padding: 6px 0 0;
+}
+
+.publication-item {
+  width: 90%;
+  padding: 14px 20px;
+}
+
+.publication-item p {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.paper-title {
+  font-weight: 700;
+}
+
+.paper-authors,
+.paper-venue {
+  line-height: 1.4;
+}
+
+.acknowledged-work {
+  margin: 6px 20px 24px;
+  padding-top: 14px;
+  border-top: 1px solid #eeeeee;
+  color: #555555;
+}
+
+.acknowledged-work h3 {
+  margin: 0 0 5px;
+  color: #333333;
+  font-family: "Lato", Verdana, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.acknowledged-note {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.acknowledged-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.acknowledged-list li,
+.acknowledged-list span {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.acknowledged-list li {
+  margin-bottom: 5px;
+}
+
 .compact-body {
   padding-top: 12px;
 }
@@ -157,16 +216,6 @@ a:hover {
 .work-item p {
   margin-top: 5px;
   margin-bottom: 5px;
-}
-
-.homepage-footer {
-  padding: 22px 20px 28px;
-  color: #777777;
-  text-align: center;
-}
-
-.homepage-footer p {
-  font-size: 12px;
 }
 
 .subpage,
@@ -301,6 +350,7 @@ a:hover {
   }
 
   .section-body,
+  .publication-item,
   .work-item {
     padding: 14px 10px;
   }
@@ -309,8 +359,14 @@ a:hover {
     padding: 0 10px;
   }
 
+  .publication-item,
   .work-item {
     width: calc(100% - 20px);
+  }
+
+  .acknowledged-work {
+    margin-right: 10px;
+    margin-left: 10px;
   }
 
   .subpage,
