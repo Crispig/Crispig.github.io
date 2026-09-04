@@ -1,0 +1,22 @@
+{% if site.visitor_map.enabled %}
+  <section class="content-section visitor-section" aria-labelledby="visitor-map-title" lang="en">
+    <h2 class="section-title" id="visitor-map-title">Visitors around the world</h2>
+    <div class="section-body visitor-body">
+      {% if jekyll.environment == 'production' %}
+        <div class="visitor-map">
+          {% include visitor-map-embed.html %}
+        </div>
+        <p class="visitor-note">
+          Visitor locations are estimated from IP addresses by
+          <a href="https://mapmyvisitors.com/">MapMyVisitors</a> and may be approximate.
+        </p>
+        {% assign stats_url_prefix = site.visitor_map.stats_url | slice: 0, 8 %}
+        {% if stats_url_prefix == 'https://' %}
+          <p class="visitor-stats-link"><a href="{{ site.visitor_map.stats_url | escape }}">View visitor statistics &rarr;</a></p>
+        {% endif %}
+      {% else %}
+        <p class="visitor-note">Visitor tracking is disabled in local previews.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}

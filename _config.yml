@@ -12,6 +12,13 @@ permalink: /blog/:year/:month/:day/:title/
 avatar: "/assets/images/profile.png"
 github_username: "Crispig"
 
+# 本站 MapMyVisitors 地图代码位于 _includes/visitor-map-embed.html。
+# 设为 false 可同时关闭地图和访问统计请求。
+visitor_map:
+  enabled: true
+  # 可选：服务提供的本站公开统计页，必须使用 https://。
+  stats_url: "https://mapmyvisitors.com/web/1c815"
+
 markdown: kramdown
 kramdown:
   input: GFM

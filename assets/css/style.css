@@ -322,6 +322,48 @@ a:hover {
   min-height: 50vh;
 }
 
+.visitor-section {
+  margin: 16px 0 32px;
+}
+
+.visitor-body {
+  padding-top: 12px;
+}
+
+.visitor-map {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto 14px;
+}
+
+.visitor-map img,
+.visitor-map iframe,
+.visitor-map canvas,
+.visitor-map svg {
+  max-width: 100%;
+}
+
+.visitor-map img {
+  height: auto;
+}
+
+.visitor-note,
+.visitor-note a,
+.visitor-stats-link,
+.visitor-stats-link a {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.visitor-note {
+  margin: 8px 0 0;
+  color: #777777;
+}
+
+.visitor-stats-link {
+  margin: 8px 0 0;
+}
+
 @media (max-width: 600px) {
   .page-container {
     width: calc(100% - 20px);
