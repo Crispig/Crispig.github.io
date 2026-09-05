@@ -110,19 +110,10 @@ a:hover {
   margin-bottom: 0;
 }
 
-.research-topic {
-  margin-top: 26px;
-}
-
-.topic-title,
 .work-title {
   margin-bottom: 7px;
   font-size: 14px;
   font-weight: 700;
-}
-
-.research-topic p:not(.topic-title) {
-  margin-top: 0;
 }
 
 .publication-list {
